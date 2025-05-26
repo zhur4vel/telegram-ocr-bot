@@ -4,7 +4,7 @@ import asyncio
 from telegram import Update
 from telegram.ext import ApplicationBuilder, MessageHandler, filters, ContextTypes
 
-BOT_TOKEN = os.getenv("BOT_TOKEN")
+BOT_TOKEN = "8028223146:AABH5sdpdqlZxvPa8h9k9zgR3IDpuLb7jY"
 OCR_API_KEY = os.getenv("OCR_API_KEY")
 
 async def handle_photo(update: Update, context: ContextTypes.DEFAULT_TYPE):
