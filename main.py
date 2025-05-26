@@ -1,9 +1,8 @@
 import os
 import requests
+import asyncio
 from telegram import Update
-from telegram.ext import (
-    ApplicationBuilder, MessageHandler, ContextTypes, filters
-)
+from telegram.ext import ApplicationBuilder, MessageHandler, filters, ContextTypes
 
 BOT_TOKEN = os.getenv("BOT_TOKEN")
 OCR_API_KEY = os.getenv("OCR_API_KEY")
@@ -22,7 +21,8 @@ async def handle_photo(update: Update, context: ContextTypes.DEFAULT_TYPE):
         result = response.json()
 
         if result.get("IsErroredOnProcessing"):
-            await update.message.reply_text("❌ OCR API вернула ошибку: " + result.get("ErrorMessage", ["Неизвестная ошибка"])[0])
+            error_message = result.get("ErrorMessage", ["Неизвестная ошибка"])[0]
+            await update.message.reply_text("❌ OCR API вернула ошибку: " + error_message)
             return
 
         parsed_results = result.get("ParsedResults")
@@ -35,3 +35,9 @@ async def handle_photo(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     except Exception as e:
         await update.message.reply_text(f"⚠️ Произошла ошибка: {str(e)}")
+
+if __name__ == "__main__":
+    print("🚀 Bot is starting...")
+    app = ApplicationBuilder().token(BOT_TOKEN).build()
+    app.add_handler(MessageHandler(filters.PHOTO, handle_photo))
+    app.run_polling()
