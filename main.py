@@ -1,5 +1,6 @@
 import os
 import requests
+import asyncio
 from telegram import Update
 from telegram.ext import ApplicationBuilder, MessageHandler, filters, ContextTypes
 
@@ -15,10 +16,20 @@ async def handle_photo(update: Update, context: ContextTypes.DEFAULT_TYPE):
         files={'filename': photo_bytes},
         data={'apikey': OCR_API_KEY, 'language': 'pol'}
     )
+
     result = response.json()
     text = result['ParsedResults'][0]['ParsedText']
     await update.message.reply_text("📄 Распознанный текст:\n\n" + text)
 
-app = ApplicationBuilder().token(BOT_TOKEN).build()
-app.add_handler(MessageHandler(filters.PHOTO, handle_photo))
-app.run_polling()
+async def main():
+    print("🚀 Bot is starting...")
+    app = ApplicationBuilder().token(BOT_TOKEN).build()
+    app.add_handler(MessageHandler(filters.PHOTO, handle_photo))
+    await app.initialize()
+    await app.start()
+    print("✅ Bot is running...")
+    await app.updater.start_polling()
+    await app.updater.idle()
+
+if __name__ == '__main__':
+    asyncio.run(main())
